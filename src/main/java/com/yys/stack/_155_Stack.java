@@ -32,35 +32,26 @@ import java.util.Stack;
  * minStack.getMin();   --> 返回 -2.
  */
 public class _155_Stack {
-    Stack<Integer> stack;
-    /** initialize your data structure here. */
+    private Stack<Integer> stack;
+    private Stack<Integer> min_stack;
     public _155_Stack() {
         stack = new Stack<>();
+        min_stack = new Stack<>();
     }
-
     public void push(int x) {
         stack.push(x);
+        if(min_stack.isEmpty() || x <= min_stack.peek())
+            min_stack.push(x);
     }
-
     public void pop() {
-        stack.pop();
+        if(stack.pop().equals(min_stack.peek()))
+            min_stack.pop();
     }
-
     public int top() {
         return stack.peek();
     }
-
     public int getMin() {
-        int result = 0;
-        if (!stack.empty()) {
-            result = stack.peek();
-            for (int i=0;i<stack.size();i++) {
-                if (stack.pop()<result) {
-                    result = stack.pop();
-                }
-            }
-        }
-        return result;
+        return min_stack.peek();
     }
 
     public static void main(String[] args) {
