@@ -6,6 +6,7 @@ package com.yys.tree;
 public class TreeNode {
     TreeNode left;
     TreeNode right;
+    TreeNode parent;
 
     int val;
     public TreeNode(int val) {

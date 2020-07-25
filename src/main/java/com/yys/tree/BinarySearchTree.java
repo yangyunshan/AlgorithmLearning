@@ -144,6 +144,198 @@ public class BinarySearchTree {
         return result;
     }
 
+    /**
+     * 获取树中某个节点的高度(递归的方式)
+     * @param node
+     * @return
+     */
+    public int getHeight(TreeNode node) {
+        if (node==null) {
+            return 0;
+        }
+        return 1 + Math.max(getHeight(node.left), getHeight(node.right));
+    }
+
+    /**
+     * 获取树中某个节点的高度(非递归的方式)
+     * @param node
+     * @return
+     */
+    public int getHeight2(TreeNode node) {
+        if (root==null) {
+            return 0;
+        }
+
+        int height = 0;
+        Queue<TreeNode> nodes = new LinkedList<>();
+        nodes.offer(node);
+        while (!nodes.isEmpty()) {
+            for (int i=nodes.size();i>0;i--) {
+                TreeNode curr = nodes.poll();
+                if (curr!=null) {
+                    if (curr.left!=null) {
+                        nodes.offer(curr.left);
+                    }
+                    if (curr.right!=null) {
+                        nodes.offer(curr.right);
+                    }
+                }
+            }
+            height ++;
+        }
+        return height;
+    }
+
+    /**
+     * 判断二叉树是否为完全二叉树
+     * @return
+     */
+    public boolean isComplete(TreeNode root) {
+        boolean flag = false;
+
+        if (root==null) {
+            return false;
+        }
+
+        Queue<TreeNode> nodes = new LinkedList<>();
+        nodes.offer(root);
+        while (!nodes.isEmpty()) {
+            TreeNode curr = nodes.poll();
+            //判断节点是否为叶子节点
+            if (flag) {
+                if (curr.left!=null || curr.right!=null) {
+                    return false;
+                }
+            }
+            if (curr.left!=null) {
+                nodes.offer(curr.left);
+            } else if(curr.right!=null) {//curr.left==null&&curr.right!=null
+                return false;
+            }
+
+            if (curr.right!=null){//curr.left!=null&&curr.right!=null
+                nodes.offer(curr.right);
+            } else {//curr.right==null
+                //包括条件：curr.left!=null&&curr.right==null和current.left==null&&curr.right==null
+                flag = true;//标记继续遍历的节点都要为叶子节点
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * 反转节点
+     * @param root
+     * @return
+     */
+    public TreeNode reverseTree(TreeNode root) {
+        if (root==null) {
+            return null;
+        }
+        TreeNode curr = root;
+        TreeNode temp = curr.left;
+        curr.left = curr.right;
+        curr.right = temp;
+
+        reverseTree(curr.left);
+        reverseTree(curr.right);
+
+        return root;
+    }
+
+    /**
+     * 获取节点的先驱节点(中序遍历的前一个节点)
+     * @param node
+     * @return
+     */
+    public TreeNode getPredecessor(TreeNode node) {
+        if (node==null) {
+            return null;
+        }
+
+        TreeNode curr = node;
+        if (node.left!=null) {
+            while (curr.right!=null) {
+                curr = curr.right;
+            }
+            return curr;
+        }
+        while (node.parent!=null && node.parent.left==node) {
+            curr = curr.parent;
+        }
+        return curr.parent;
+    }
+
+    /**
+     * 获取节点的后继节点(中序遍历的后一个节点)
+     * @param node
+     * @return
+     */
+    public TreeNode getSuccessor(TreeNode node) {
+        if (node==null) {
+            return null;
+        }
+
+        TreeNode curr = node;
+        if (node.right!=null) {
+            while (curr.left!=null) {
+                curr = curr.left;
+            }
+            return curr;
+        }
+        while (node.parent!=null && node.parent.right==node) {
+            curr = curr.parent;
+        }
+        return curr.parent;
+    }
+
+    public void remove(TreeNode node) {
+        if (node==null) {
+            return;
+        }
+
+        //删除度为2的节点(为什么要把度为2的处理放在最前面处理？
+        //因为删除节点是用后继节点替换的，而后继节点的度都为1或0，后续节点替换掉待删除的节点后，后继节点仍需要删除，
+        // 所以后续就又回到了度为1或0节点的删除处理上，所以才会这样设计)
+        if (node.left!=null && node.right!=null) {
+            //获取node的后继节点，并用后继节点替换掉待删除的节点，最后删除后继节点（注意：前后继节点的度只能为1或0）
+            TreeNode temp = getSuccessor(node);
+            //此处采用将节点值替换，而不是替换整个节点
+            node.val = temp.val;
+            node = temp;//此时node的度为1或0，待后续删除
+        }
+
+        //删除叶子节点，度为0
+        if (node.left==null && node.right==null) {
+            if (node.parent==null) {//node为根节点的情况
+                root = null;
+            }
+            else if (node==node.parent.left) {
+                node.parent.left = null;
+            } else {
+                node.parent.right = null;
+            }
+        }
+
+        //删除度为1的节点
+        TreeNode temp = node.left!=null ? node.left : node.right;
+        if (node.left!=null && node.right==null) {
+            if (node.parent==null) {
+                root = temp;
+                temp.parent = root;
+            }
+            else if (node==node.parent.left) {
+                node.parent.left = temp;
+                temp.parent = node.parent;
+            } else {
+                node.parent.right = temp;
+                temp.parent = node.parent;
+            }
+        }
+
+    }
+
 
     public static void main(String[] args) {
         BinarySearchTree binarySearchTree = new BinarySearchTree();
@@ -163,15 +355,10 @@ public class BinarySearchTree {
         binarySearchTree.add(node6);
         binarySearchTree.add(node7);
 
-        binarySearchTree.preorderTraversal(binarySearchTree.root);
-        System.out.println("-----------------------------------");
-        binarySearchTree.inorderTraversal(binarySearchTree.root);
-        System.out.println("-----------------------------------");
-        binarySearchTree.postorderTraversal(binarySearchTree.root);
-        System.out.println("-----------------------------------");
-        binarySearchTree.levelTraversal(binarySearchTree.root);
+//        int height = binarySearchTree.getHeight2(node2);
+//        boolean flag = binarySearchTree.isComplete(node1);
+        binarySearchTree.preorderTraversal(binarySearchTree.reverseTree(binarySearchTree.root));
 
-        List<List<Integer>> ss = binarySearchTree.test();
-        System.out.println(ss);
+//        System.out.println(flag);
     }
 }
