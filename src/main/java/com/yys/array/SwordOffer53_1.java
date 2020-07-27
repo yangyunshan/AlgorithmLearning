@@ -55,5 +55,6 @@ public class SwordOffer53_1 {
     public static void main(String[] args) {
         int count = new SwordOffer53_1().search(new int[] {5,7,7,8,8,10}, 8);
         System.out.println(count);
+
     }
 }
